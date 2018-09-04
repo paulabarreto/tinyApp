@@ -13,6 +13,18 @@ var urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+app.post("/urls", (req, res) => {
+  let newURL = generateRandomString();
+  urlDatabase[newURL] = req.body.longURL;
+  res.redirect(`/urls`);
+});
+
+app.post("/urls/:id/delete", (req, res) => {
+  let longURL= req.params.id;
+  delete urlDatabase[longURL];
+  res.redirect(`/urls`);
+});
+
 
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase };
@@ -26,12 +38,6 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   let templateVars = { shortURL: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
-});
-
-app.post("/urls", (req, res) => {
-  let newURL = generateRandomString();
-  urlDatabase[newURL] = req.body.longURL
-  res.redirect(`/urls`);         
 });
 
 app.get("/u/:shortURL", (req, res) => {
