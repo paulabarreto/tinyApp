@@ -16,8 +16,30 @@ var urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  },
+  "userid": {
+    id: "userid",
+    email: "userid@example.com",
+    password: "coffelatte"
+  }
+};
+
+var usersDatabase = {};
+
+var templateVars = {};
+
 app.post("/urls", (req, res) => {
-  let newURL = generateRandomString();
+  let newURL = generateRandomString(6);
   urlDatabase[newURL] = req.body.longURL;
   res.redirect(`/urls`);
 });
@@ -44,28 +66,38 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   res.clearCookie('username', req.body['username']);
-  console.log(req.cookies);
   res.redirect("/urls");
 });
 
+app.post("/register", (req, res) => {
+  //console.log(req.body.email, req.body.password);
+  // users[req.body.email + "id"] = req.body.email + "id";
+  let userId = generateRandomString(4);
+  users[userId] = {id: userId, email: req.body.email, password: req.body.password};
+  // console.log(users);
+  res.redirect("/register");
+});
+
+app.get("/register", (req, res) => {
+  // templateVars = { urls: urlDatabase, username: req.cookies['username']};
+  // // console.log(templateVars);
+  res.render("urls_register", templateVars);
+});
+
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase, username: req.cookies['username']};
+  templateVars = { urls: urlDatabase, username: req.cookies['username']};
   // console.log(templateVars);
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
-});
-
-app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.id];
-  res.redirect(longURL);
+  templateVars = { urls: urlDatabase, username: req.cookies['username']};
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
   // console.log(urlDatabase[req.params.id]);
-  let templateVars = { shortURL: req.params.id, longURL: urlDatabase[req.params.id] };
+  templateVars = { shortURL: req.params.id, longURL: urlDatabase[req.params.id], username: req.cookies['username'] };
   res.render("urls_show", templateVars);
 });
 
@@ -74,9 +106,9 @@ app.listen(PORT, () => {
 });
 
 
-function generateRandomString() {
+function generateRandomString(number) {
   let result = "";
-  for(i = 0; i < 6; i++){
+  for(i = 0; i < number; i++){
     result += Math.random().toString(36).replace('0.', '').slice(1, 2);
   }
   return result;
