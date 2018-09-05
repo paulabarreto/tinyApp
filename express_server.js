@@ -33,12 +33,20 @@ app.post("/urls/:id", (req, res) => {
   res.redirect(`/urls`);
 });
 
+// res.cookie('name', 'tobi', { path: '/admin' });
+// res.clearCookie('name', { path: '/admin' });
+
 app.post("/login", (req, res) => {
   res.cookie('username', req.body['username']);
   // console.log(req.cookies);
   res.redirect("/urls");
 });
 
+app.post("/logout", (req, res) => {
+  res.clearCookie('username', req.body['username']);
+  console.log(req.cookies);
+  res.redirect("/urls");
+});
 
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase, username: req.cookies['username']};
