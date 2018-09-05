@@ -4,8 +4,8 @@
 
 <p> <%= shortURL %> : <%= longURL %> </p>
 
-<form action="/urls/<%= shortURL %>" method="POST" style="margin:150px;">
+<form action="/urls/<%= shortURL %>" method="POST">
   <label for="longURL">Edit: </label>
-  <input id="longURL" type="text" name="longURL" style="width: 300px">
+  <input id="longURL" type="text" name="longURL" style="width: 100px">
   <input type="submit" value="Submit">
 </form>

@@ -6,8 +6,9 @@
 <body>
   <ul>
     <% for (var key in urls) { %>
-      <li> <a href="#"> <%= key %> : <%= urls[key] %></a></li>
-      <form method="POST" action="/urls/<%= key %>/delete"><button type="submit">Delete</button></form>
+      <li> <a href="#"> <%= key %> : <%= urls[key] %></a>
+        <form method="POST" action="/urls/<%= key %>/delete"><button type="submit">Delete</button></form>
+      </li>
     <% }; %>
   </ul>
 </body>
