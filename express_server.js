@@ -89,25 +89,17 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
-function findUserList(userId){
-  for(let id in urlDatabase){
-    for(let key in urlDatabase[id]){
-      return key;
-    }
-  }
-}
-
 app.post("/urls", (req, res) => {
   let userId = req.cookies["id"];
   let newURL = generateRandomString(6);
-  urlDatabase[userId] = {[newURL]: req.body.longURL};
+  urlDatabase[userId][newURL] = req.body.longURL;
   res.redirect("/urls");
 });
 
 app.post("/urls/:id/delete", (req, res) => {
-  let longURL= req.params.id;
-  delete urlDatabase[longURL];
-  res.redirect(`/urls`);
+  let longURL = req.params.id;
+  delete urlDatabase[req.cookies["id"]][longURL];
+  res.redirect("/urls");
 });
 
 app.post("/urls/:id", (req, res) => {
@@ -132,7 +124,7 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   if(req.cookies["id"]){
-    templateVars = { urls: urlDatabase, id: req.cookies["id"]};
+    templateVars = { urls: urlDatabase[req.cookies["id"]], id: req.cookies["id"]};
     res.render("urls_new", templateVars);
   }else{
     res.redirect("/login");
@@ -141,7 +133,8 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   // console.log(urlDatabase[req.params.id]);
-  templateVars = { shortURL: req.params.id, longURL: urlDatabase[req.params.id]};
+  let userId =  req.cookies["id"];
+  templateVars = { id: userId, shortURL: req.params.id, longURL: urlDatabase[userId][req.params.id]};
   res.render("urls_show", templateVars);
 });
 
