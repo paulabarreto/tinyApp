@@ -33,7 +33,7 @@ function generateRandomString(number) {
 const urlDatabase = {
   "userRandomID": {
     "b2xVn2": "http://www.lighthouselabs.ca",
-    "9sm5xK": "http://www.google.com"
+    "9sm5xk": "http://www.google.com"
   }
 };
 
@@ -143,10 +143,30 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
+function findUserShortURL(shortUrl){
+  for(let id in urlDatabase){
+    for(let key in urlDatabase[id]){
+      if (key === shortUrl){
+        return id;
+      }
+    }
+  }
+  return null;
+}
+
+
 app.get("/urls/:id", (req, res) => {
   // console.log(urlDatabase[req.params.id]);
   let userId =  req.cookies["id"];
-  templateVars = { id: userId, shortURL: req.params.id, longURL: urlDatabase[userId][req.params.id]};
+  var shortURL = req.params.id
+
+  let userIdByURL = findUserShortURL(shortURL);
+  if(userId){
+    templateVars = { id: userId, shortURL: shortURL, longURL: urlDatabase[userId][req.params.id]};
+  } else{
+    let userIdByURL = findUserShortURL(shortURL);
+    templateVars = { id: "", shortURL: shortURL, longURL: urlDatabase[userIdByURL][req.params.id]};
+  }
   res.render("urls_show", templateVars);
 });
 
