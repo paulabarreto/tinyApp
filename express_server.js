@@ -89,10 +89,22 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
+function findUserList(user_id){
+  for(let id in urlDatabase){
+    if (user_id === id){
+      return true;
+    }
+  }
+}
+
 app.post("/urls", (req, res) => {
   let userId = req.cookies["id"];
   let newURL = generateRandomString(6);
-  urlDatabase[userId][newURL] = req.body.longURL;
+  if(findUserList(userId)){
+    urlDatabase[userId][newURL] = req.body.longURL;
+  } else{
+    urlDatabase[userId] = {[newURL]: req.body.longURL};
+  }
   res.redirect("/urls");
 });
 
@@ -103,7 +115,7 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/urls/:id", (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
+  urlDatabase[req.cookies["id"]][req.params.id] = req.body.longURL;
   res.redirect("/urls");
 });
 
