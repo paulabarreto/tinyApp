@@ -79,8 +79,9 @@ app.post("/register", (req, res) => {
   res.cookie('id', userId);
   if(!req.body.email || !req.body.password){
     res.status(400).end();
+  } else{
+    res.redirect("/urls");
   }
-  res.redirect("/urls");
 });
 
 app.post("/login", (req, res) => {
@@ -92,10 +93,8 @@ app.post("/login", (req, res) => {
   } else{
     if(users[id].password === password){
         res.cookie('id', id);
-        console.log(req.cookies);
         res.redirect("/urls");
-    }
-    else {
+    } else {
       res.status(403).end();
     }
   }
@@ -118,18 +117,22 @@ app.get("/login", (req, res) => {
 
 app.get("/urls", (req, res) => {
   templateVars = { urls: urlDatabase, id: req.cookies["id"]};
-  // console.log(templateVars);
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  templateVars = { urls: urlDatabase, id: req.cookies["id"]};
-  res.render("urls_new", templateVars);
+  if(req.cookies["id"]){
+    console.log(req.cookies["id"]);
+    templateVars = { urls: urlDatabase, id: req.cookies["id"]};
+    res.render("urls_new", templateVars);
+  }else{
+    res.redirect("/login");
+  }
 });
 
 app.get("/urls/:id", (req, res) => {
   // console.log(urlDatabase[req.params.id]);
-  templateVars = { shortURL: req.params.id, longURL: urlDatabase[req.params.id], users: users };
+  templateVars = { shortURL: req.params.id, longURL: urlDatabase[req.params.id]};
   res.render("urls_show", templateVars);
 });
 
