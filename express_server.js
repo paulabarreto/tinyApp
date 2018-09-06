@@ -30,7 +30,7 @@ const users = {
   "userid": {
     id: "userid",
     email: "userid@example.com",
-    password: "coffelatte"
+    password: "123"
   }
 };
 
@@ -51,21 +51,6 @@ app.post("/urls/:id/delete", (req, res) => {
 
 app.post("/urls/:id", (req, res) => {
   urlDatabase[req.params.id] = req.body.longURL;
-  res.redirect(`/urls`);
-});
-
-// res.cookie('name', 'tobi', { path: '/admin' });
-// res.clearCookie('name', { path: '/admin' });
-
-// app.post("/login", (req, res) => {
-//   res.cookie('username', req.body['username']);
-//   res.cookie('password', req.body['password']);
-//   // console.log(req.cookies);
-//   res.redirect("/urls");
-// });
-
-app.post("/logout", (req, res) => {
-  res.clearCookie('username', req.body['username']);
   res.redirect("/urls");
 });
 
@@ -75,10 +60,43 @@ app.post("/register", (req, res) => {
   let userId = generateRandomString(4);
   users[userId] = {id: userId, email: req.body.email, password: req.body.password};
   res.cookie('id', userId);
-  // console.log(users);
   if(!req.body.email || !req.body.password){
     res.status(400).end();
   }
+  res.redirect("/urls");
+});
+
+function findUser(email){
+  for(let id in users){
+    for(let key in users[id]){
+      if (email === users[id][key]){
+        return id;
+      }
+    }
+  }
+  return null;
+}
+
+app.post("/login", (req, res) => {
+  let email = req.body["email"];
+  let password = req.body["password"];
+  let id = findUser(email);
+  if(!id){
+    res.status(403).end();
+  } else{
+    console.log(users[id].password);
+    if(users[id].password === password){
+        res.cookie('user_id', id);
+        res.redirect("/urls");
+    }
+    else {
+      res.status(403).end();
+    }
+  }
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie('id', req.body['email']);
   res.redirect("/urls");
 });
 
