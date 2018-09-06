@@ -2,12 +2,19 @@
 <html lang="en">
   <head></head>
   <body>
-    <form action="/login" method="POST">
-      <label for="email">E-mail: </label>
-      <input id="email" type="email" name="email" style="width: 100px">
-      <label for="password">Password: </label>
-      <input id="password" type="password" name="password" style="width: 100px">
-      <input type="submit" value="Submit">
+    <% if(id){ %>
+      <%= id %>
+        <form action="/logout" method="POST">
+          <input type="submit" value="Logout">
+        </form>
+      <% } else { %>
+        <form action="/login" method="POST">
+        <label for="email">E-mail: </label>
+        <input id="email" type="email" name="email" style="width: 100px">
+        <label for="password">Password: </label>
+        <input id="password" type="password" name="password" style="width: 100px">
+        <input type="submit" value="Submit">
+      <% }; %>
     </form>
   </body>
 </html>

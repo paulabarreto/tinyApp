@@ -11,6 +11,25 @@ var cookieParser = require('cookie-parser');
 
 app.use(cookieParser());
 
+function findUser(email){
+  for(let id in users){
+    for(let key in users[id]){
+      if (email === users[id][key]){
+        return id;
+      }
+    }
+  }
+  return null;
+}
+
+function generateRandomString(number) {
+  let result = "";
+  for(i = 0; i < number; i++){
+    result += Math.random().toString(36).replace('0.', '').slice(1, 2);
+  }
+  return result;
+}
+
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -55,8 +74,6 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  //console.log(req.body.email, req.body.password);
-  // users[req.body.email + "id"] = req.body.email + "id";
   let userId = generateRandomString(4);
   users[userId] = {id: userId, email: req.body.email, password: req.body.password};
   res.cookie('id', userId);
@@ -66,17 +83,6 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
 });
 
-function findUser(email){
-  for(let id in users){
-    for(let key in users[id]){
-      if (email === users[id][key]){
-        return id;
-      }
-    }
-  }
-  return null;
-}
-
 app.post("/login", (req, res) => {
   let email = req.body["email"];
   let password = req.body["password"];
@@ -84,9 +90,9 @@ app.post("/login", (req, res) => {
   if(!id){
     res.status(403).end();
   } else{
-    console.log(users[id].password);
     if(users[id].password === password){
-        res.cookie('user_id', id);
+        res.cookie('id', id);
+        console.log(req.cookies);
         res.redirect("/urls");
     }
     else {
@@ -96,26 +102,28 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('id', req.body['email']);
+  res.clearCookie('id', req.body["id"]);
   res.redirect("/urls");
 });
 
 app.get("/register", (req, res) => {
+  templateVars = { urls: urlDatabase, id: req.cookies["id"]};
   res.render("urls_register", templateVars);
 });
 
 app.get("/login", (req, res) => {
+  templateVars = { urls: urlDatabase, id: req.cookies["id"]};
   res.render("urls_login", templateVars);
 });
 
 app.get("/urls", (req, res) => {
-  templateVars = { urls: urlDatabase, users: users};
+  templateVars = { urls: urlDatabase, id: req.cookies["id"]};
   // console.log(templateVars);
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  templateVars = { urls: urlDatabase, users: users};
+  templateVars = { urls: urlDatabase, id: req.cookies["id"]};
   res.render("urls_new", templateVars);
 });
 
@@ -128,12 +136,3 @@ app.get("/urls/:id", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
-
-function generateRandomString(number) {
-  let result = "";
-  for(i = 0; i < number; i++){
-    result += Math.random().toString(36).replace('0.', '').slice(1, 2);
-  }
-  return result;
-}
