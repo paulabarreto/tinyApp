@@ -30,9 +30,11 @@ function generateRandomString(number) {
   return result;
 }
 
-var urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+const urlDatabase = {
+  "userRandomID": {
+    "b2xVn2": "http://www.lighthouselabs.ca",
+    "9sm5xK": "http://www.google.com"
+  }
 };
 
 const users = {
@@ -53,25 +55,7 @@ const users = {
   }
 };
 
-var usersDatabase = {};
 var templateVars = {};
-
-app.post("/urls", (req, res) => {
-  let newURL = generateRandomString(6);
-  urlDatabase[newURL] = req.body.longURL;
-  res.redirect(`/urls`);
-});
-
-app.post("/urls/:id/delete", (req, res) => {
-  let longURL= req.params.id;
-  delete urlDatabase[longURL];
-  res.redirect(`/urls`);
-});
-
-app.post("/urls/:id", (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
-  res.redirect("/urls");
-});
 
 app.post("/register", (req, res) => {
   let userId = generateRandomString(4);
@@ -105,6 +89,32 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
+function findUserList(userId){
+  for(let id in urlDatabase){
+    for(let key in urlDatabase[id]){
+      return key;
+    }
+  }
+}
+
+app.post("/urls", (req, res) => {
+  let userId = req.cookies["id"];
+  let newURL = generateRandomString(6);
+  urlDatabase[userId] = {[newURL]: req.body.longURL};
+  res.redirect("/urls");
+});
+
+app.post("/urls/:id/delete", (req, res) => {
+  let longURL= req.params.id;
+  delete urlDatabase[longURL];
+  res.redirect(`/urls`);
+});
+
+app.post("/urls/:id", (req, res) => {
+  urlDatabase[req.params.id] = req.body.longURL;
+  res.redirect("/urls");
+});
+
 app.get("/register", (req, res) => {
   templateVars = { urls: urlDatabase, id: req.cookies["id"]};
   res.render("urls_register", templateVars);
@@ -116,13 +126,12 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  templateVars = { urls: urlDatabase, id: req.cookies["id"]};
+  templateVars = { urls: urlDatabase[req.cookies["id"]], id: req.cookies["id"]};
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
   if(req.cookies["id"]){
-    console.log(req.cookies["id"]);
     templateVars = { urls: urlDatabase, id: req.cookies["id"]};
     res.render("urls_new", templateVars);
   }else{
