@@ -4,9 +4,12 @@
     <% include ./partials/_header %>
 </header>
 <body>
+  <br><br>
+  <button><a href="/urls/new">Create New</a></button>
+  <br><br>
   <ul>
     <% for (var key in urls) { %>
-      <li> <a href="#"> <%= key %> : <%= urls[key] %></a>
+      <li> <a href="/urls/<%=key%>"> <%= key %> : <%= urls[key] %></a>
         <form method="POST" action="/urls/<%= key %>/delete"><button type="submit">Delete</button></form>
       </li>
     <% }; %>
