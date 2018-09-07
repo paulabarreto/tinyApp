@@ -4,6 +4,12 @@ const bcrypt = require('bcryptjs');
 var app = express();
 var PORT = 8080;
 
+var methodOverride = require('method-override');
+
+// override with POST having ?_method=DELETE
+app.use(methodOverride('_method'));
+
+
 var cookieSession = require('cookie-session');
 
 app.use(cookieSession({
@@ -109,7 +115,7 @@ app.post("/urls", (req, res) => {
   res.redirect("/urls");
 });
 
-app.post("/urls/:id/delete", (req, res) => {
+app.delete("/urls/:id", (req, res) => {
   let longURL = req.params.id;
   delete urlDatabase[req.session.user_id][longURL];
   res.redirect("/urls");
