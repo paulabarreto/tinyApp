@@ -4,8 +4,8 @@ tinyApp is a fullstack web application built with Node and Express that allows u
 
 ## Final Product
 
-![Create New Short URL](/Docs/Create-new.png)
-![URLs List](/Docs/URLs-list.png)
+![Create New Short URL](https://github.com/paulabarreto/tinyApp/blob/master/docs/Create-new.png?raw=true)
+![URLs List](https://github.com/paulabarreto/tinyApp/blob/master/docs/URLs-list.png?raw=true)
 
 ## Dependencies
 
