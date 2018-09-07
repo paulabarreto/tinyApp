@@ -154,7 +154,6 @@ app.get("/urls/:id", (req, res) => {
 
   let userId =  req.session.user_id;
   var shortURL = req.params.id
-  // let countPlusOne = urlDatabase[userId]["count"]++;
   let countPlusOne = urlDatabase[userId][shortURL]["count"]++;
   let templateVars;
   console.log(countPlusOne);
