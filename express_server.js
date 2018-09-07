@@ -1,26 +1,20 @@
 
 var express = require("express");
+var methodOverride = require('method-override');
+var cookieSession = require('cookie-session');
+const bodyParser = require("body-parser");
 const bcrypt = require('bcryptjs');
+
 var app = express();
 var PORT = 8080;
 
-var methodOverride = require('method-override');
-
-// override with POST having ?_method=DELETE
 app.use(methodOverride('_method'));
-
-
-var cookieSession = require('cookie-session');
-
 app.use(cookieSession({
   name: 'session',
   keys: ["ayjabayga186376479"],
 
-  // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }))
-
-const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
@@ -62,14 +56,13 @@ function generateRandomString(number) {
 }
 
 const urlDatabase = {
-  "userRandomID": {
-    "b2xVn2": "http://www.lighthouselabs.ca",
-    "9sm5xk": "http://www.google.com"
+  "user1": {
+    "b2xVn2": {longURL: "http://www.lighthouselabs.ca", count: 0},
+    "9sm5xk": {longURL: "http://www.google.com", count: 0}
   }
 };
 
 const users = {};
-
 var templateVars = {};
 
 app.post("/register", (req, res) => {
@@ -109,8 +102,9 @@ app.post("/urls", (req, res) => {
   let newURL = generateRandomString(6);
   if(findUserList(userId)){
     urlDatabase[userId][newURL] = req.body.longURL;
+    urlDatabase[userId]["count"] = 1;
   } else{
-    urlDatabase[userId] = {[newURL]: req.body.longURL};
+    urlDatabase[userId] = {newURL: req.body.longURL, count: 1};
   }
   res.redirect("/urls");
 });
@@ -120,6 +114,7 @@ app.delete("/urls/:id", (req, res) => {
   delete urlDatabase[req.session.user_id][longURL];
   res.redirect("/urls");
 });
+
 
 app.post("/urls/:id", (req, res) => {
   urlDatabase[req.session.user_id][req.params.id] = req.body.longURL;
@@ -151,15 +146,20 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
+
   let userId =  req.session.user_id;
   var shortURL = req.params.id
+  let countPlusOne = urlDatabase[userId]["count"]++;
+  let templateVars;
+  console.log(countPlusOne);
+
 
   let userIdByURL = findUserShortURL(shortURL);
   if(userId){
-    templateVars = { id: userId, shortURL: shortURL, longURL: urlDatabase[userId][req.params.id]};
+    templateVars = { id: userId, shortURL: shortURL, longURL: urlDatabase[userId][req.params.id], count: countPlusOne};
   } else{
     let userIdByURL = findUserShortURL(shortURL);
-    templateVars = { id: "", shortURL: shortURL, longURL: urlDatabase[userIdByURL][req.params.id]};
+    templateVars = { id: "", shortURL: shortURL, longURL: urlDatabase[userIdByURL][req.params.id], count: countPlusOne};
   }
   res.render("urls_show", templateVars);
 });
