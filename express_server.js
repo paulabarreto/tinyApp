@@ -101,10 +101,14 @@ app.post("/urls", (req, res) => {
   let userId = req.session.user_id;
   let newURL = generateRandomString(6);
   if(findUserList(userId)){
-    urlDatabase[userId][newURL] = req.body.longURL;
-    urlDatabase[userId]["count"] = 1;
+    urlDatabase[userId][newURL] = {
+      longURL: req.body.longURL,
+      count: 1
+    };
   } else{
-    urlDatabase[userId] = {newURL: req.body.longURL, count: 1};
+    urlDatabase[userId] = {
+      [newURL]: {longURL: req.body.longURL, count: 1}
+    };
   }
   res.redirect("/urls");
 });
@@ -133,6 +137,7 @@ app.get("/login", (req, res) => {
 
 app.get("/urls", (req, res) => {
   templateVars = { urls: urlDatabase[req.session.user_id], id: req.session.user_id};
+  console.log(urlDatabase);
   res.render("urls_index", templateVars);
 });
 
@@ -149,7 +154,8 @@ app.get("/urls/:id", (req, res) => {
 
   let userId =  req.session.user_id;
   var shortURL = req.params.id
-  let countPlusOne = urlDatabase[userId]["count"]++;
+  // let countPlusOne = urlDatabase[userId]["count"]++;
+  let countPlusOne = urlDatabase[userId][shortURL]["count"]++;
   let templateVars;
   console.log(countPlusOne);
 

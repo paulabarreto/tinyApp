@@ -8,8 +8,8 @@
   <button><a href="/urls/new">Create New</a></button>
   <br><br>
   <ul>
-    <% for (var key in urls) { %>
-      <li> <a href="/urls/<%= key %>"> <%= key %> : <%= urls[key] %></a>
+    <% for (let key in urls) { %>
+      <li> <a href="/urls/<%= key %>"> <%= key %> : <%= urls[key].longURL %></a>
         <form method="POST" action="/urls/<%= key %>?_method=DELETE"><button type="submit">Delete</button></form>
       </li>
     <% }; %>
