@@ -11,6 +11,13 @@
     <% for (let key in urls) { %>
       <li> <a href="/urls/<%= key %>"> <%= key %> : <%= urls[key].longURL %></a>
         <form method="POST" action="/urls/<%= key %>?_method=DELETE"><button type="submit">Delete</button></form>
+        <br><br><br>
+        <form method="POST" action="/urls/<%= key %>?_method=PUT">
+          <label for="longURL">Edit: </label>
+          <input id="longURL" type="text" name="longURL" style="width: 100px">
+          <input type="submit" value="Submit">
+        </form>
+
       </li>
     <% }; %>
   </ul>

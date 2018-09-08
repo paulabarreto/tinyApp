@@ -121,8 +121,9 @@ app.delete("/urls/:id", (req, res) => {
 });
 
 
-app.post("/urls/:id", (req, res) => {
-  urlDatabase[req.session.user_id][req.params.id] = req.body.longURL;
+app.put("/urls/:id", (req, res) => {
+  console.log(urlDatabase[req.session.user_id][req.params.id]);
+  urlDatabase[req.session.user_id][req.params.id]["longURL"] = req.body.longURL;
   res.redirect("/urls");
 });
 
@@ -155,6 +156,7 @@ app.get("/u/:shortURL", (req, res) => {
   let userIdByURL = findUserShortURL(shortURL);
   let longURL = urlDatabase[userIdByURL][shortURL]["longURL"];
   var address = "http://" + longURL;
+
   res.redirect(address);
 });
 
