@@ -9,6 +9,9 @@ var app = express();
 var PORT = 8080;
 
 app.use(methodOverride('_method'));
+
+//Cookie setup
+app.set('trust proxy', 1) // trust first proxy
 app.use(cookieSession({
   name: 'session',
   keys: ["ayjabayga186376479"],
@@ -18,6 +21,7 @@ app.use(cookieSession({
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
+//Function that finds user's short url list
 function findUserList(user_id){
   for(let id in urlDatabase){
     if (user_id === id){
@@ -26,6 +30,7 @@ function findUserList(user_id){
   }
 }
 
+//Helper function to find user after login
 function findUser(email){
   for(let id in users){
     for(let key in users[id]){
@@ -36,6 +41,7 @@ function findUser(email){
   }
 }
 
+//Helper function to find user's id from a shortURL that belongs to him
 function findUserShortURL(shortUrl){
   for(let id in urlDatabase){
     for(let key in urlDatabase[id]){
@@ -47,6 +53,7 @@ function findUserShortURL(shortUrl){
   return null;
 }
 
+//Generate IDs
 function generateRandomString(number) {
   let result = "";
   for(i = 0; i < number; i++){
@@ -55,6 +62,7 @@ function generateRandomString(number) {
   return result;
 }
 
+//urlDatabase structure
 const urlDatabase = {
   "user1": {
     "b2xVn2": {longURL: "http://www.lighthouselabs.ca", count: 0, userVisitCount: 0},
@@ -64,6 +72,9 @@ const urlDatabase = {
 
 const users = {};
 var templateVars = {};
+var visitIds = [];
+var visitTimes = [];
+
 
 app.post("/register", (req, res) => {
   let userId = generateRandomString(4);
@@ -104,11 +115,10 @@ app.post("/urls", (req, res) => {
     urlDatabase[userId][newURL] = {
       longURL: req.body.longURL,
       count: 1,
-      userVisitCount: 1
     };
   } else{
     urlDatabase[userId] = {
-      [newURL]: {longURL: req.body.longURL, count: 1, userVisitCount: 1}
+      [newURL]: {longURL: req.body.longURL, count: 1, uniqueVisitCount: 1}
     };
   }
   res.redirect("/urls");
@@ -151,31 +161,40 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
-app.get("/u/:shortURL", (req, res) => {
+app.get("/u/:shortURL", (req, res, next) => {
+
   let shortURL = req.params.shortURL;
   let userIdByURL = findUserShortURL(shortURL);
   let longURL = urlDatabase[userIdByURL][shortURL]["longURL"];
   var address = "http://" + longURL;
 
   res.redirect(address);
+
 });
 
 app.get("/urls/:id", (req, res) => {
 
-  let userId =  req.session.user_id;
+  var userId = "";
+  var d = new Date();
+
+  //If user is not logged in, he gets a randomly genereted Id
+  if(!req.session.user_id){
+    userId = generateRandomString(5);
+  }else{
+    userId = req.session.user_id;
+  }
+
+  //Creates array of users and times of visits
+  visitIds.push(userId);
+  visitTimes.push(d);
+
   var shortURL = req.params.id;
-  let countPlusOne = urlDatabase[userId][shortURL]["count"]++;
-  let visitorCountPlusOne = urlDatabase[userId][shortURL]["userVisitCountcount"]++;
-  let templateVars;
   let userIdByURL = findUserShortURL(shortURL);
   let longURL = urlDatabase[userIdByURL][shortURL]["longURL"];
+  let countPlusOne = urlDatabase[userIdByURL][shortURL]["count"]++;
 
-  if(userId){
-    templateVars = { id: userId, shortURL: shortURL, longURL: longURL, count: countPlusOne};
-  } else{
-    let userIdByURL = findUserShortURL(shortURL);
-    templateVars = { id: "", shortURL: shortURL, longURL: longURL, count: countPlusOne, userVisitCount: visitorCountPlusOne};
-  }
+  templateVars = { id: userId, shortURL: shortURL, longURL: longURL, count: countPlusOne, visitIds: visitIds, visitTimes: visitTimes};
+
   res.render("urls_show", templateVars);
 });
 
